@@ -4,8 +4,9 @@
   "description": "App for learning english words.",
   "main": "index.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=development PORT=3456 webpack-dev-server",
+    "dev": "cross-env NODE_ENV=development PORT=3456 webpack-dev-server",
     "build": "cross-env NODE_ENV=production webpack",
+    "start": "node index.js",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx ./"
   },
   "keywords": [
@@ -23,6 +24,7 @@
     "cross-env": "7.0.2",
     "css-loader": "5.0.1",
     "dotenv": "8.2.0",
+    "express": "^4.17.2",
     "history": "4.10.1",
     "html-webpack-plugin": "4.5.0",
     "immer-reducer": "^0.7.13",
