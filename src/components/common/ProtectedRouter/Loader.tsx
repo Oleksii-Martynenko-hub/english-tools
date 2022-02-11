@@ -30,7 +30,7 @@ const LoaderWrapper = styled.div<{ isFullScreen: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${({ theme }) => theme.palette.body};
+  /* background-color: ${({ theme }) => theme.palette.body}; */
 `;
 
 const LoaderStyled = styled.div`

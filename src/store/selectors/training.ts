@@ -9,6 +9,18 @@ export const selectIsTrainingPending: Selector<State, boolean> = createSelector(
   ({ isPending }) => isPending
 );
 
+export const selectIsGetCardsToTrainingPending: Selector<State, boolean> =
+  createSelector(
+    selectTrainingReducer,
+    ({ isGetCardsToTrainingPending }) => isGetCardsToTrainingPending
+  );
+
+export const selectIsGetAnswersPending: Selector<State, boolean> =
+  createSelector(
+    selectTrainingReducer,
+    ({ isGetAnswersPending }) => isGetAnswersPending
+  );
+
 export const selectIsTrainingResolved: Selector<State, boolean> =
   createSelector(selectTrainingReducer, ({ isResolved }) => isResolved);
 
@@ -30,3 +42,6 @@ export const selectAnswers: Selector<State, string[]> = createSelector(
   selectTrainingReducer,
   ({ answers }) => answers
 );
+
+export const selectCurrentCard: Selector<State, IFullWord | null> =
+  createSelector(selectTrainingReducer, ({ currentCard }) => currentCard);
