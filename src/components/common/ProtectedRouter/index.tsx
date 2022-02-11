@@ -12,7 +12,7 @@ const ProtectedRoute: React.FC<RouteProps> = (props) => {
   const isRestoreAuthPending = useSelector(selectIsRestoreAuthPending);
   const isLoggedIn = useSelector(selectIsLoggedIn);
 
-  if (isRestoreAuthPending) return <Loader />;
+  if (isRestoreAuthPending) return <Loader isFullScreen />;
 
   return isLoggedIn ? <Route {...props} /> : <Redirect to={Routes.CHECK} />;
 };

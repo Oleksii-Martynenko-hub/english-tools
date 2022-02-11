@@ -3,11 +3,15 @@ import styled, { keyframes } from "styled-components";
 
 interface Props {
   isFullScreen?: boolean;
+  percentSize?: number;
 }
 
-const Loader: React.FC<Props> = ({ isFullScreen = false }) => (
+const Loader: React.FC<Props> = ({
+  isFullScreen = false,
+  percentSize = 100,
+}) => (
   <LoaderWrapper isFullScreen={isFullScreen}>
-    <LoaderStyled>
+    <LoaderStyled percentSize={percentSize}>
       <Div />
       <Div />
       <Div />
@@ -33,11 +37,12 @@ const LoaderWrapper = styled.div<{ isFullScreen: boolean }>`
   /* background-color: ${({ theme }) => theme.palette.body}; */
 `;
 
-const LoaderStyled = styled.div`
+const LoaderStyled = styled.div<{ percentSize: number }>`
   display: inline-block;
   position: relative;
   width: 80px;
   height: 80px;
+  transform: ${({ percentSize }) => "scale(" + percentSize / 100 + ")"};
 `;
 
 const roller = keyframes`

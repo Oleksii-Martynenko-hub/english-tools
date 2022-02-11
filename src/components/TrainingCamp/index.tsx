@@ -1,3 +1,7 @@
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Button, Card, CloseButton, Col } from "react-bootstrap";
+
 import {
   getCardsForTrainingAsync,
   getRandomWordAsync,
@@ -13,12 +17,10 @@ import {
   selectIsTrainingResolved,
   selectTrainingErrorMsg,
 } from "@/store/selectors/training";
-import React, { useEffect, useState } from "react";
-import { Button, Card, CloseButton, Col } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
-import Loader from "../common/ProtectedRouter/Loader";
-import LearnStep from "./LearnStep";
-import RememberStep from "./RememberStep";
+
+import Loader from "@/components/common/ProtectedRouter/Loader";
+import LearnStep from "@/components/TrainingCamp/LearnStep";
+import RememberStep from "@/components/TrainingCamp/RememberStep";
 
 const initStepOfTraining = {
   remember: false,
@@ -72,8 +74,6 @@ const TrainingCamp: React.FC = () => {
     <Col>
       <h2 className="fs-2">Training Camp</h2>
 
-      {1 ? <p></p> : 2 ? <a></a> : <div></div>}
-
       <Card
         style={{ overflow: "hidden scroll", height: "calc(100vh - 126px)" }}
         className="p-3 d-flex justify-content-center align-items-center position-relative"
@@ -87,7 +87,9 @@ const TrainingCamp: React.FC = () => {
             ) : (
               <>
                 {isPending ? (
-                  <Loader />
+                  <div className="position-absolute top-0 end-0 p-3">
+                    <Loader percentSize={60} />
+                  </div>
                 ) : (
                   <CloseButton
                     className="position-absolute top-0 end-0 p-3"
