@@ -70,7 +70,7 @@ const Login: React.FC = () => {
       ) : (
         <Form onSubmit={handleSubmit} style={{ minWidth: 250 }}>
           <Form.Group className="mb-3" controlId="formBasicName">
-            <Form.Label>Username</Form.Label>
+            <Form.Label>Email</Form.Label>
             <Form.Control
               value={user.email}
               onChange={handleInputs}
@@ -79,8 +79,8 @@ const Login: React.FC = () => {
               required
               autoFocus
               name="email"
-              autoComplete="username"
-              placeholder="Enter uniq username"
+              autoComplete="email"
+              placeholder="Enter your email"
             />
           </Form.Group>
 
