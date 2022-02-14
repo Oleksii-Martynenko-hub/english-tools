@@ -67,7 +67,7 @@ export class CollectionsReducer extends ImmerReducer<ICollectionsState> {
     this.draftState.collectionsList = collections;
   }
 
-  public setActiveCollectionId(id: number) {
+  public setActiveCollectionId(id: number | undefined) {
     this.draftState.activeCollectionId = id;
   }
 

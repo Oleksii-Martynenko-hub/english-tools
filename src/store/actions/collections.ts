@@ -1,16 +1,7 @@
 import { createActionCreators } from "immer-reducer";
-import { IWord, WordsReducer } from "@/store/reducers/words";
-import Tokens from "@/utils/local-storage/tokens";
 import { AsyncAction } from "./common";
 import { IGetPartBody } from "@/api/main-protected";
-import { useSelector } from "react-redux";
-import { selectWordsList } from "../selectors/words";
 import { CollectionsReducer, ICollection } from "../reducers/collections";
-import {
-  selectCollectionsList,
-  selectCollectionsListWithCards,
-  selectCollectionWithCards,
-} from "../selectors/collections";
 
 export const collectionsActions = createActionCreators(CollectionsReducer);
 
@@ -24,7 +15,7 @@ export type CollectionsActions =
   | ReturnType<typeof collectionsActions.setCollectionsWithCards>;
 
 export const getCollectionsListAsync =
-  (body?: IGetPartBody): AsyncAction =>
+  (body?: IGetPartBody, isSetFirstElementToActive?: boolean): AsyncAction =>
   async (dispatch, _, { mainApiProtected }) => {
     try {
       dispatch(collectionsActions.setIsPending());
@@ -36,7 +27,9 @@ export const getCollectionsListAsync =
           data.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
         )
       );
-      dispatch(collectionsActions.setActiveCollectionId(data[0].id));
+
+      if (isSetFirstElementToActive)
+        dispatch(collectionsActions.setActiveCollectionId(data[0].id));
       dispatch(collectionsActions.setIsResolved());
     } catch (e) {
       dispatch(collectionsActions.setIsRejected());
@@ -96,7 +89,7 @@ export const removeCollectionAsync =
           id,
         });
 
-      await dispatch(getCollectionsListAsync());
+      await dispatch(getCollectionsListAsync(undefined, true));
 
       dispatch(collectionsActions.setIsResolved());
     } catch (e) {

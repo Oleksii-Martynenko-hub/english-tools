@@ -1,38 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { Button, Dropdown } from "react-bootstrap";
-import { DeleteOutlined } from "@ant-design/icons";
-
-import CollectionForm from "./CollectionForm";
-import Collection from "./Collection";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  addWordAsync,
-  editWordAsync,
-  getWordsListAsync,
-  removeWordAsync,
-} from "@/store/actions/words";
+import { Button, Dropdown } from "react-bootstrap";
+import styled from "styled-components";
+
 import {
   addCardsToCollectionAsync,
-  addCollectionAsync,
+  collectionsActions,
   getCollectionsListAsync,
   getCollectionWithCardsAsync,
-  removeCardsFromCollectionAsync,
   removeCollectionAsync,
 } from "@/store/actions/collections";
 import {
   selectActiveCollectionId,
   selectCollectionsList,
   selectCollectionWithCards,
+  selectIsCollectionsPending,
 } from "@/store/selectors/collections";
-import styled from "styled-components";
-import CardsOfDeck from "./CardsOfDeck";
-import collections from "@/store/reducers/collections";
 import { IFullWord } from "@/store/reducers/words";
 import { selectWordsList } from "@/store/selectors/words";
+
+import CollectionForm from "@/components/Dictionary/Decks/CollectionForm";
+import Collection from "@/components/Dictionary/Decks/Collection";
+import CardsOfDeck from "@/components/Dictionary/Decks/CardsOfDeck";
+import Loader from "@/components/common/Loader";
 import { initDataCommonWords } from "@/utils/data";
 
 const Decks: React.FC = () => {
   const dispatch = useDispatch();
+
+  const isPending = useSelector(selectIsCollectionsPending);
 
   const collections = useSelector(selectCollectionsList);
   const commonCards = useSelector(selectWordsList);
@@ -69,13 +65,16 @@ const Decks: React.FC = () => {
 
   useEffect(() => {
     dispatch(getCollectionsListAsync());
-    // dispatch(getRandomWordAsync("doctor"));
-    // dispatch(getCardsForTrainingAsync());
 
     // initDataCommonWords.forEach(({ word, translate, context }) => {
     //   dispatch(addWordAsync({ translate, word, context }));
     // });
   }, []);
+
+  useEffect(() => {
+    if (!activeCollectionId && collections && collections.length)
+      dispatch(collectionsActions.setActiveCollectionId(collections[0].id));
+  }, [collections]);
 
   const handleRemoveCollection = () =>
     activeCollectionId && dispatch(removeCollectionAsync(activeCollectionId));
@@ -103,19 +102,21 @@ const Decks: React.FC = () => {
       </DecksList>
 
       <DeckControl>
-        <Dropdown className="me-2">
-          <Dropdown.Toggle variant="success" id="dropdown-basic">
-            + Add card to deck
-          </Dropdown.Toggle>
+        {!!commonCardsWithoutExist.length && (
+          <Dropdown className="me-2">
+            <Dropdown.Toggle variant="success" id="dropdown-basic">
+              + Add card to deck
+            </Dropdown.Toggle>
 
-          <Dropdown.Menu>
-            {commonCardsWithoutExist.map(({ id, word }) => (
-              <Dropdown.Item key={id} onClick={handleAddCardToCollection(id)}>
-                {word}
-              </Dropdown.Item>
-            ))}
-          </Dropdown.Menu>
-        </Dropdown>
+            <Dropdown.Menu>
+              {commonCardsWithoutExist.map(({ id, word }) => (
+                <Dropdown.Item key={id} onClick={handleAddCardToCollection(id)}>
+                  {word}
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
+        )}
 
         <Button
           className="me-2"
@@ -132,9 +133,13 @@ const Decks: React.FC = () => {
             handleCancelEdit={() => setIsEditing(false)}
           />
         ) : (
-          <Button className="me-2" onClick={() => setIsEditing(true)}>
+          <Button className="me-auto" onClick={() => setIsEditing(true)}>
             Edit name
           </Button>
+        )}
+
+        {isPending && (
+          <Loader style={{ width: 32, height: 38, marginRight: 0 }} />
         )}
       </DeckControl>
 
