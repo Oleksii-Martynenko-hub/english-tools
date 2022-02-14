@@ -14,7 +14,6 @@ import {
   selectIsGetCardsToTrainingPending,
   selectIsTrainingPending,
   selectIsTrainingRejected,
-  selectIsTrainingResolved,
   selectTrainingErrorMsg,
 } from "@/store/selectors/training";
 
@@ -32,27 +31,36 @@ const TrainingCamp: React.FC = () => {
   const dispatch = useDispatch();
 
   const isPending = useSelector(selectIsTrainingPending);
+  const isRejected = useSelector(selectIsTrainingRejected);
+  const errorMsg = useSelector(selectTrainingErrorMsg);
   const isGetCardsToTrainingPending = useSelector(
     selectIsGetCardsToTrainingPending
   );
-  const isResolved = useSelector(selectIsTrainingResolved);
-  const isRejected = useSelector(selectIsTrainingRejected);
-  const errorMsg = useSelector(selectTrainingErrorMsg);
-
   const cardsToTraining = useSelector(selectCardsToTraining);
   const currentCard = useSelector(selectCurrentCard);
 
   const [isTrainingStarted, setIsTrainingStarted] = useState(false);
+  const [isErrorRangeCards, setIsErrorRangeCards] = useState(false);
   const [wordsToTraining, setWordsToTraining] =
     useState<IFullWord[]>(cardsToTraining);
   const [stepOfTraining, setStepOfTraining] = useState(initStepOfTraining);
 
   useEffect(() => {
-    setWordsToTraining(cardsToTraining);
+    if (cardsToTraining.length) handleTrainingStart();
   }, [cardsToTraining]);
 
-  const handleTrainingStart = () => {
+  const handleOnClickBtnStart = () => {
     dispatch(getCardsForTrainingAsync(undefined, { limit: 5, offset: 0 }));
+  };
+
+  const handleTrainingStart = () => {
+    if (cardsToTraining.length < 5) {
+      setIsErrorRangeCards(true);
+      setTimeout(() => setIsErrorRangeCards(false), 5000);
+      return;
+    }
+
+    setWordsToTraining(cardsToTraining);
     setIsTrainingStarted((prev) => !prev);
     setStepOfTraining({ ...initStepOfTraining, remember: true });
   };
@@ -78,11 +86,11 @@ const TrainingCamp: React.FC = () => {
         style={{ overflow: "hidden scroll", height: "calc(100vh - 126px)" }}
         className="p-3 d-flex justify-content-center align-items-center position-relative"
       >
-        {isTrainingStarted ? (
+        {isGetCardsToTrainingPending ? (
+          <Loader />
+        ) : isTrainingStarted ? (
           <>
-            {isGetCardsToTrainingPending ? (
-              <Loader />
-            ) : isRejected ? (
+            {isRejected ? (
               <p>{errorMsg}</p>
             ) : (
               <>
@@ -116,12 +124,18 @@ const TrainingCamp: React.FC = () => {
           </>
         ) : (
           <Button
-            onClick={handleTrainingStart}
+            onClick={handleOnClickBtnStart}
             size="lg"
             style={{ width: 140 }}
           >
             Start
           </Button>
+        )}
+        {isErrorRangeCards && (
+          <p className="text-danger mt-2" style={{ marginBottom: "-56px" }}>
+            Not enough cards for training,
+            <br /> add one more or try later!
+          </p>
         )}
       </Card>
     </Col>
