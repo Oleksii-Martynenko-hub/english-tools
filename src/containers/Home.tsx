@@ -11,7 +11,6 @@ const Home: React.FC = () => {
   const menuLinks: [string, string, boolean][] = [
     [Routes.DICTIONARY, "Dictionary", true],
     [Routes.TRAINING_CAMP, "Training Camp", true],
-    [Routes.PROFILE, "Profile", true],
   ];
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
