@@ -16,15 +16,19 @@ export interface IFullWord extends IWord {
 }
 
 export interface IWordsState {
+  isGetTranslatePending: boolean;
   isPending: boolean;
   isResolved: boolean;
   isRejected: boolean;
   errorMsg: string;
+  translate: string | null;
   wordsList: IFullWord[];
 }
 
 const initialState: IWordsState = {
+  isGetTranslatePending: false,
   wordsList: [],
+  translate: null,
   isPending: false,
   isResolved: false,
   isRejected: false,
@@ -37,6 +41,10 @@ export class WordsReducer extends ImmerReducer<IWordsState> {
     this.draftState.isResolved = false;
     this.draftState.isRejected = false;
     this.draftState.errorMsg = "";
+  }
+
+  public setIsGetTranslatePending(is: boolean) {
+    this.draftState.isGetTranslatePending = is;
   }
 
   public setIsResolved() {
@@ -61,6 +69,10 @@ export class WordsReducer extends ImmerReducer<IWordsState> {
 
   public setWordsList(words: IFullWord[]) {
     this.draftState.wordsList = words;
+  }
+
+  public setTranslate(translate: string | null) {
+    this.draftState.translate = translate;
   }
 }
 

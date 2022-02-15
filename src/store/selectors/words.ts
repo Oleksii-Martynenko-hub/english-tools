@@ -28,3 +28,14 @@ export const selectWordsList: Selector<State, IFullWord[]> = createSelector(
   selectWordsReducer,
   ({ wordsList }) => wordsList
 );
+
+export const selectTranslate: Selector<State, string | null> = createSelector(
+  selectWordsReducer,
+  ({ translate }) => translate
+);
+
+export const selectIsGetTranslatePending: Selector<State, boolean> =
+  createSelector(
+    selectWordsReducer,
+    ({ isGetTranslatePending }) => isGetTranslatePending
+  );

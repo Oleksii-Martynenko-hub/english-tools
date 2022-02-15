@@ -3,7 +3,6 @@ import {
   ICollectionWithCards,
   IFullCollection,
 } from "@/store/reducers/collections";
-import { IUser } from "@/store/reducers/user";
 import { IFullWord, IWord } from "@/store/reducers/words";
 
 import HttpClientProtected from "./http/http-client-protected";
@@ -104,7 +103,7 @@ export default class MainApiProtected extends HttpClientProtected {
 
   //deepl
   public postTranslate = (body: { text: string }) =>
-    this.instance.post<IResponse<ICollectionWithCards>>(
+    this.instance.post<IResponse<{ translate: string }>>(
       "/deepl/translate",
       body
     );

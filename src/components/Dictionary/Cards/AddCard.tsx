@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
   Form,
@@ -14,15 +15,25 @@ import {
   CloseCircleOutlined,
   QuestionCircleFilled,
 } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
-import { addWordAsync } from "@/store/actions/words";
+
 import {
+  addWordAsync,
+  getTranslateOfWordAsync,
+  wordsActions,
+} from "@/store/actions/words";
+import {
+  selectIsGetTranslatePending,
   selectIsWordsPending,
   selectIsWordsRejected,
+  selectTranslate,
   selectWordsErrorMsg,
 } from "@/store/selectors/words";
-import Loader from "../../common/Loader";
 import { IWord } from "@/store/reducers/words";
+
+import { useTimeout } from "@/components/common/hooks/useTimeout";
+import useToggle from "@/components/common/hooks/useToggle";
+import Loader from "@/components/common/Loader";
+import Typing from "@/components/common/Typing";
 
 const initWordValues = { word: "", translate: "", context: "" };
 
@@ -30,20 +41,29 @@ const AddNewCard: React.FC = () => {
   const dispatch = useDispatch();
 
   const isPending = useSelector(selectIsWordsPending);
-  const isRejected = useSelector(selectIsWordsRejected);
-  const errorMsg = useSelector(selectWordsErrorMsg);
+  const translate = useSelector(selectTranslate);
+  const isGetTranslatePending = useSelector(selectIsGetTranslatePending);
 
   const firstFieldRef = useRef<HTMLInputElement>(null);
 
-  const [isAddWordVisible, setIsAddWordVisible] = useState(false);
-  const [isChoosingWord, setIsChoosingWord] = useState(false);
-  const [choosingWord, setChoosingWord] = useState<number | null>(null);
+  const [isFormVisible, setIsFormVisible] = useToggle();
+  const [isChoosingWord, setIsChoosingWord] = useToggle();
+  const [isTypingWord, setIsTypingWord] = useToggle();
+  const [chosenWord, setChosenWord] = useState<number | null>(null);
 
   const [errValidationMsg, setErrValidationMsg] = useState({
     word: "",
     translate: "",
   });
   const [word, setWord] = useState<IWord>(initWordValues);
+
+  const getTranslate = async () => {
+    if (word.word && word.word.length > 1)
+      await dispatch(getTranslateOfWordAsync(word.word));
+    setIsTypingWord(false);
+  };
+
+  const [reset, clear] = useTimeout(getTranslate, 1000);
 
   const handleInputs = ({
     target: { name, value },
@@ -52,6 +72,16 @@ const AddNewCard: React.FC = () => {
   }) => {
     setErrValidationMsg((prev) => ({ ...prev, [name]: "" }));
     setWord({ ...word, [name]: value });
+    if (name === "word") {
+      if (translate !== null) dispatch(wordsActions.setTranslate(null));
+      setIsTypingWord(true);
+      reset();
+    }
+  };
+
+  const handleClickOnTranslate = () => {
+    setWord((prev) => ({ ...prev, translate: translate || "" }));
+    dispatch(wordsActions.setTranslate(null));
   };
 
   const handleAddCard: React.MouseEventHandler<HTMLButtonElement> = async (
@@ -73,8 +103,7 @@ const AddNewCard: React.FC = () => {
 
     await dispatch(addWordAsync({ ...word, context: undefined }));
 
-    setWord(initWordValues);
-    handleFocusToFirstField();
+    initState();
   };
 
   const handleChosenWord = async (index: number) => {
@@ -85,8 +114,13 @@ const AddNewCard: React.FC = () => {
 
     await dispatch(addWordAsync({ ...word, context }));
 
+    initState();
+  };
+
+  const initState = () => {
+    clear();
     setWord(initWordValues);
-    setChoosingWord(null);
+    setChosenWord(null);
     setIsChoosingWord(false);
     handleFocusToFirstField();
   };
@@ -103,37 +137,66 @@ const AddNewCard: React.FC = () => {
         </Card.Title>
         <Col md="auto">
           <Button
-            onClick={() => setIsAddWordVisible(!isAddWordVisible)}
+            onClick={() => setIsFormVisible(!isFormVisible)}
             aria-controls="example-collapse-text"
-            aria-expanded={isAddWordVisible}
+            aria-expanded={isFormVisible}
             variant="outline-primary"
             className="mt-2 d-flex justify-content-center align-items-center"
           >
-            {isAddWordVisible ? (
-              <CloseCircleOutlined />
-            ) : (
-              <PlusCircleOutlined />
-            )}
+            {isFormVisible ? <CloseCircleOutlined /> : <PlusCircleOutlined />}
           </Button>
         </Col>
       </Row>
 
-      <Collapse in={isAddWordVisible}>
+      <Collapse in={isFormVisible}>
         <Form>
           <Row className="mt-2"></Row>
           {!isChoosingWord && (
             <Row className="mb-2">
               <Col>
                 <Form.Group controlId="formWord">
-                  <Form.Label className="mb-1">Word</Form.Label>
-                  <Form.Control
-                    ref={firstFieldRef}
-                    value={word.word}
-                    onChange={handleInputs}
-                    name="word"
-                    type="text"
-                    placeholder="Enter word"
-                  />
+                  <Form.Label className="mb-1">
+                    Word{" "}
+                    <OverlayTrigger
+                      key="description_field"
+                      placement="right-end"
+                      overlay={
+                        <Tooltip id="description_word_field">
+                          You can choose the proposed translation, start typing
+                          for searching translate.
+                        </Tooltip>
+                      }
+                    >
+                      <QuestionCircleFilled
+                        style={{ verticalAlign: "0.075em" }}
+                      />
+                    </OverlayTrigger>
+                  </Form.Label>
+                  <div className="position-relative">
+                    <Form.Control
+                      ref={firstFieldRef}
+                      value={word.word}
+                      onChange={handleInputs}
+                      name="word"
+                      type="text"
+                      placeholder="Enter word"
+                    />
+                    <div className="p-1 position-absolute top-0 end-0 h-100">
+                      {translate ? (
+                        <Button
+                          style={{ padding: "3px 12px" }}
+                          onClick={handleClickOnTranslate}
+                          variant="outline-primary border-0"
+                        >
+                          {translate}
+                        </Button>
+                      ) : (
+                        (isGetTranslatePending || isTypingWord) && (
+                          <Typing className="h-100 px-2 pt-1" />
+                        )
+                      )}
+                    </div>
+                  </div>
                 </Form.Group>
 
                 {errValidationMsg.word && (
@@ -173,12 +236,12 @@ const AddNewCard: React.FC = () => {
                     <Button
                       style={{ padding: 5 }}
                       onClick={() => {
-                        setChoosingWord(i);
+                        setChosenWord(i);
                         handleChosenWord(i);
                       }}
                       variant="outline-primary border-0"
                     >
-                      {choosingWord === i && isPending ? (
+                      {chosenWord === i && isPending ? (
                         <Loader
                           style={{ width: 26, height: 26, marginRight: 0 }}
                         />
@@ -196,7 +259,7 @@ const AddNewCard: React.FC = () => {
                     <Form.Label className="mb-1">
                       Context (optional){" "}
                       <OverlayTrigger
-                        key="description_field"
+                        key="description_context_field"
                         overlay={
                           <Tooltip id="description_field">
                             Write some example for using this word.
@@ -244,26 +307,6 @@ const AddNewCard: React.FC = () => {
           </Row>
         </Form>
       </Collapse>
-      {/* <ToastContainer className="p-3" position="top-end">
-        <Toast
-          show={isShowError}
-          onClose={toggleShowError}
-          bg="danger"
-          // delay={5000}
-          // autohide
-        >
-          <Toast.Header>
-            <span className="me-auto">Validation errors</span>{" "}
-          </Toast.Header>
-          <Toast.Body>
-            {errValidationMsg.map((msg) => (
-              <span className="d-inline-block" key={msg}>
-                {msg}
-              </span>
-            ))}
-          </Toast.Body>
-        </Toast>
-      </ToastContainer> */}
     </Card.Body>
   );
 };
