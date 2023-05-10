@@ -20,6 +20,7 @@ export interface IWordsState {
   isPending: boolean;
   isResolved: boolean;
   isRejected: boolean;
+  isAllLoaded: boolean;
   errorMsg: string;
   translate: string | null;
   wordsList: IFullWord[];
@@ -32,6 +33,7 @@ const initialState: IWordsState = {
   isPending: false,
   isResolved: false,
   isRejected: false,
+  isAllLoaded: false,
   errorMsg: "",
 };
 
@@ -57,6 +59,10 @@ export class WordsReducer extends ImmerReducer<IWordsState> {
     this.draftState.isRejected = true;
   }
 
+  public setIsAllLoaded(isAllLoaded: boolean) {
+    this.draftState.isAllLoaded = isAllLoaded;
+  }
+
   public setErrorMsg(msg?: string) {
     if (typeof msg === "string") {
       this.draftState.errorMsg = msg;
@@ -67,8 +73,10 @@ export class WordsReducer extends ImmerReducer<IWordsState> {
     this.draftState.errorMsg = "Something went wrong :(";
   }
 
-  public setWordsList(words: IFullWord[]) {
-    this.draftState.wordsList = words;
+  public setWordsList(words: IFullWord[], offset: number) {
+    this.draftState.wordsList = offset
+      ? [...this.draftState.wordsList, ...words]
+      : words;
   }
 
   public setTranslate(translate: string | null) {

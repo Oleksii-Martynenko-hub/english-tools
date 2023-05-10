@@ -19,6 +19,11 @@ export const selectIsWordsRejected: Selector<State, boolean> = createSelector(
   ({ isRejected }) => isRejected
 );
 
+export const selectIsAllWordsLoaded: Selector<State, boolean> = createSelector(
+  selectWordsReducer,
+  ({ isAllLoaded }) => isAllLoaded
+);
+
 export const selectWordsErrorMsg: Selector<State, string> = createSelector(
   selectWordsReducer,
   ({ errorMsg }) => errorMsg

@@ -6,7 +6,6 @@ import {
 import { IFullWord, IWord } from "@/store/reducers/words";
 
 import HttpClientProtected from "./http/http-client-protected";
-import { IResponse } from "./main";
 
 interface IGetMeResponse {
   request_num: number;
@@ -33,46 +32,44 @@ export default class MainApiProtected extends HttpClientProtected {
     return this.classInstance;
   }
 
-  public getMe = () =>
-    this.instance.get<IResponse<IGetMeResponse>>("/auth/me1");
+  public getMe = () => this.instance.get<IGetMeResponse>("/auth/me1");
 
   public postRefresh = () =>
-    this.instance.post<IResponse<IGetMeResponse>>("/auth/refresh");
+    this.instance.post<IGetMeResponse>("/auth/refresh");
 
   // cards
   public getWordsList = (
     params: IGetPartBody | undefined = { limit: 20, offset: 0 }
   ) =>
-    this.instance.get<IResponse<IFullWord[]>>("/card/findAllForUser", {
+    this.instance.get<IFullWord[]>("/card/findAllForUser", {
       params,
     });
 
   public postNewWord = (body: IWord) =>
-    this.instance.post<IResponse<IFullWord>>("/card", body);
+    this.instance.post<IFullWord>("/card", body);
 
   public putEditWord = (body: { id: number; input: IWord }) =>
-    this.instance.put<IResponse<IFullWord>>("/card", body);
+    this.instance.put<IFullWord>("/card", body);
 
   public deleteWord = (body: { id: number }) =>
-    this.instance.delete<IResponse<IFullWord>>("/card", { data: body });
+    this.instance.delete<IFullWord>("/card", { data: body });
 
   //collections
   public getCollectionsList = (
     params: IGetPartBody | undefined = { limit: 20, offset: 0 }
   ) =>
-    this.instance.get<IResponse<IFullCollection[]>>(
-      "/collections/findAllForUser",
-      { params }
-    );
+    this.instance.get<IFullCollection[]>("/collections/findAllForUser", {
+      params,
+    });
 
   public postNewCollection = (body: ICollection) =>
-    this.instance.post<IResponse<IFullCollection>>("/collections", body);
+    this.instance.post<IFullCollection>("/collections", body);
 
   public putEditCollection = (body: { id: number; input: ICollection }) =>
-    this.instance.put<IResponse<IFullCollection>>("/collections", body);
+    this.instance.put<IFullCollection>("/collections", body);
 
   public deleteCollection = (body: { id: number }) =>
-    this.instance.delete<IResponse<IFullCollection>>("/collections", {
+    this.instance.delete<IFullCollection>("/collections", {
       data: body,
     });
 
@@ -81,13 +78,12 @@ export default class MainApiProtected extends HttpClientProtected {
     id: number,
     body: IGetPartBody | undefined = { limit: 20, offset: 0 }
   ) =>
-    this.instance.get<IResponse<ICollectionWithCards>>(
-      "/collections/findWithRelations",
-      { params: { id, ...body } }
-    );
+    this.instance.get<ICollectionWithCards>("/collections/findWithRelations", {
+      params: { id, ...body },
+    });
 
   public postCardsToCollection = (body: { id: number; cardIds: number[] }) =>
-    this.instance.post<IResponse<ICollectionWithCards>>(
+    this.instance.post<ICollectionWithCards>(
       "/collections/addCardsToCollection",
       body
     );
@@ -96,27 +92,24 @@ export default class MainApiProtected extends HttpClientProtected {
     id: number;
     cardIds: number[];
   }) =>
-    this.instance.delete<IResponse<ICollectionWithCards>>(
+    this.instance.delete<ICollectionWithCards>(
       "/collections/removeCardsFromCollection",
       { data: body }
     );
 
   //deepl
   public postTranslate = (body: { text: string }) =>
-    this.instance.post<IResponse<{ translate: string }>>(
-      "/deepl/translate",
-      body
-    );
+    this.instance.post<{ translate: string }>("/deepl/translate", body);
 
   //training
   public getRandomWord = (params: { word: string }) =>
-    this.instance.get<IResponse<string>>("/training/getRandomWord", { params });
+    this.instance.get<string>("/training/getRandomWord", { params });
 
   public getCardsForTraining = (
     collectionId?: number,
     body: IGetPartBody | undefined = { limit: 20, offset: 0 }
   ) =>
-    this.instance.get<IResponse<IFullWord[]>>("/training/getCardsForTraining", {
+    this.instance.get<IFullWord[]>("/training/getCardsForTraining", {
       params: { ...body, collectionId },
     });
 
@@ -124,8 +117,5 @@ export default class MainApiProtected extends HttpClientProtected {
     cardIds: number[];
     collectionId?: number;
   }) =>
-    this.instance.put<IResponse<IFullWord[]>>(
-      "/training/updateCardsAfterTraining",
-      body
-    );
+    this.instance.put<IFullWord[]>("/training/updateCardsAfterTraining", body);
 }

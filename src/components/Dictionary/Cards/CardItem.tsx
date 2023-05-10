@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { Button, Col, Card, Row, Collapse, Dropdown } from "react-bootstrap";
+import {
+  Button,
+  Col,
+  Card,
+  Row,
+  Collapse,
+  Dropdown,
+  Tooltip,
+  OverlayTrigger,
+} from "react-bootstrap";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -12,7 +21,10 @@ import { IFullWord } from "@/store/reducers/words";
 import { useDispatch, useSelector } from "react-redux";
 import { removeWordAsync } from "@/store/actions/words";
 import { selectCollectionsList } from "@/store/selectors/collections";
-import { addCardsToCollectionAsync } from "@/store/actions/collections";
+import {
+  addCardsToCollectionAsync,
+  getCollectionsListAsync,
+} from "@/store/actions/collections";
 
 interface Props {
   card: IFullWord;
@@ -44,6 +56,12 @@ const CardItem: React.FC<Props> = ({ card }) => {
     dispatch(removeWordAsync(id));
 
     handleCancelEdit();
+  };
+
+  const handleClickDecksListBtn = () => {
+    if (!collection.length) {
+      dispatch(getCollectionsListAsync());
+    }
   };
 
   const handleAddCardToCollection = (collectionId: number) => () =>
@@ -116,7 +134,7 @@ const CardItem: React.FC<Props> = ({ card }) => {
               className="d-flex align-items-center"
               style={{ flex: "0 0 40px" }}
             >
-              <Dropdown className="me-2">
+              <Dropdown className="me-2" onToggle={handleClickDecksListBtn}>
                 <Dropdown.Toggle variant="success" id="dropdown-basic">
                   To deck
                 </Dropdown.Toggle>
@@ -171,6 +189,24 @@ const CardItem: React.FC<Props> = ({ card }) => {
                 ></div>
               </Col>
             ))}
+            {homeURL && (
+              <Col
+                md="auto"
+                className="fs-6 ms-auto text-muted d-flex align-items-end"
+              >
+                <OverlayTrigger
+                  key="description_field"
+                  overlay={
+                    <Tooltip id="description_word_field">{homeURL}</Tooltip>
+                  }
+                >
+                  <span>
+                    from: <a href={homeURL}>url</a>
+                  </span>
+                </OverlayTrigger>
+              </Col>
+            )}
+
             <Col
               md="auto"
               className="fs-6 ms-auto text-muted d-flex align-items-end"

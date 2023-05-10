@@ -10,6 +10,7 @@ export type WordsActions =
   | ReturnType<typeof wordsActions.setIsPending>
   | ReturnType<typeof wordsActions.setIsResolved>
   | ReturnType<typeof wordsActions.setIsRejected>
+  | ReturnType<typeof wordsActions.setIsAllLoaded>
   | ReturnType<typeof wordsActions.setErrorMsg>
   | ReturnType<typeof wordsActions.setTranslate>
   | ReturnType<typeof wordsActions.setWordsList>;
@@ -22,7 +23,10 @@ export const getWordsListAsync =
 
       const { data } = await mainApiProtected.getWordsList(body);
 
-      dispatch(wordsActions.setWordsList(data));
+      dispatch(wordsActions.setWordsList(data, body?.offset || 0));
+
+      if (data.length < 5) dispatch(wordsActions.setIsAllLoaded(true));
+
       dispatch(wordsActions.setIsResolved());
     } catch (e) {
       dispatch(wordsActions.setIsRejected());

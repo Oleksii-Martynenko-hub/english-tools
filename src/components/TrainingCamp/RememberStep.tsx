@@ -51,7 +51,7 @@ const RememberStep: React.FC<Props> = ({
             </Row>
 
             <Card.Text className="fs-4">
-              {wordsToTraining[currentWord - 1].context
+              {(wordsToTraining[currentWord - 1].context || "")
                 .split("*")
                 .map((t: string, i: number) =>
                   i === 1 ? (
